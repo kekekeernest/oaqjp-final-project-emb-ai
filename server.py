@@ -1,18 +1,43 @@
+"""
+server.py
+
+Flask web application for NLP Emotion Detection.
+Provides endpoints for analyzing text input and returning
+detected emotions with their scores and dominant emotion.
+"""
+
 from flask import Flask, request, render_template
 from EmotionDetection import emotion_detector
 
 app = Flask(__name__)
 
+
 @app.route('/')
 def home():
+    """
+    Render the homepage of the NLP Emotion Detection app.
+
+    Returns:
+        str: HTML content of index.html
+    """
     return render_template('index.html')
 
+
 @app.route('/emotionDetector', methods=['GET', 'POST'])
-def emotionDetector():
-    # POST Method
+def emotion_detector_endpoint():
+    """
+    Process user input and run emotion detection on the provided text.
+
+    Handles both GET and POST requests. Returns the formatted emotion
+    response. If input text is blank, returns a friendly error message.
+
+    Returns:
+        str: Formatted system response or error message
+    """
+    # Get text input from POST or GET
     if request.method == 'POST':
         text_to_analyze = request.form.get('textToAnalyze', '').strip()
-    else:  # GET method
+    else:
         text_to_analyze = request.args.get('textToAnalyze', '').strip()
 
     # Run emotion detection
@@ -20,9 +45,9 @@ def emotionDetector():
 
     # Handle blank input
     if result['dominant_emotion'] is None:
-        return "Invalid text! Please try again!"  # <-- return 200 instead of 400
+        return "Invalid text! Please try again!"
 
-    # response
+    # Prepare formatted response
     response_text = (
         f"For the given statement, the system response is "
         f"'anger': {result['anger']}, 'disgust': {result['disgust']}, "
@@ -33,6 +58,6 @@ def emotionDetector():
 
 
 if __name__ == "__main__":
-    # Listen on all interfaces for cloud IDE
-    # app.run(host='localhost', port=5000, debug=True)
+    # Entry point for the Flask application.
+    # Listens on all interfaces to allow access from Cloud IDE preview.
     app.run(host='0.0.0.0', port=5000, debug=True)
